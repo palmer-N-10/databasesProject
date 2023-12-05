@@ -1,0 +1,42 @@
+CREATE TABLE IF NOT EXISTS Department (
+    DepartmentName VARCHAR(255),
+    DepartmentCode CHAR(4) PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS Program (
+    ProgramName VARCHAR(255) PRIMARY KEY,
+    PersonInChargeName VARCHAR(255),
+    PersonInChargeUniversityID INT,
+    PersonInChargeEmail VARCHAR(255),
+    DepartmentCode CHAR(4),
+    FOREIGN KEY (DepartmentCode) REFERENCES Department(DepartmentCode)
+);
+
+CREATE TABLE IF NOT EXISTS Faculty (
+    FacultyID INT PRIMARY KEY,
+    FacultyName VARCHAR(255),
+    FacultyEmail VARCHAR(255),
+    FacultyRank ENUM('full', 'associate', 'assistant', 'adjunct'),
+    DepartmentCode CHAR(4),
+    FOREIGN KEY (DepartmentCode) REFERENCES Department(DepartmentCode)
+);
+
+CREATE TABLE IF NOT EXISTS Course (
+    CourseID CHAR(8) PRIMARY KEY,
+    CourseTitle VARCHAR(255),
+    CourseDescription TEXT,
+    DepartmentCode CHAR(4),
+    FOREIGN KEY (DepartmentCode) REFERENCES Department(DepartmentCode)
+);
+
+CREATE TABLE IF NOT EXISTS Section (
+    SectionNumber CHAR(3),
+    Semester ENUM('Fall', 'Spring', 'Summer'),
+    Year YEAR,
+    CourseID CHAR(8),
+    FacultyID INT,
+    NumberOfStudents INT,
+    PRIMARY KEY (SectionNumber, Semester, Year),
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
+    FOREIGN KEY (FacultyID) REFERENCES Faculty(FacultyID)
+);
