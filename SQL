@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS Program (
     PersonInChargeUniversityID INT,
     PersonInChargeEmail VARCHAR(255),
     DepartmentCode CHAR(4),
-    FOREIGN KEY (DepartmentCode) REFERENCES Department(DepartmentCode)
+    FOREIGN KEY (DepartmentCode) REFERENCES Department(DepartmentCode),
     FOREIGN KEY (PersonInChargeUniversityID) REFERENCES Faculty(FacultyID)
 );
 
