@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS Program (
     PersonInChargeEmail VARCHAR(255),
     DepartmentCode CHAR(4),
     FOREIGN KEY (DepartmentCode) REFERENCES Department(DepartmentCode)
+    FOREIGN KEY (PersonInChargeUniversityID) REFERENCES Faculty(FacultyID)
 );
 
 CREATE TABLE IF NOT EXISTS Faculty (
