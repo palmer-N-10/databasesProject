@@ -40,3 +40,47 @@ CREATE TABLE IF NOT EXISTS Section (
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
     FOREIGN KEY (FacultyID) REFERENCES Faculty(FacultyID)
 );
+
+CREATE TABLE IF NOT EXISTS LearningObjective (
+    ObjectiveCode CHAR(8) PRIMARY KEY,
+    ObjectiveDescription TEXT,
+    ProgramName VARCHAR(255),
+    FOREIGN KEY (ProgramName) REFERENCES Program(ProgramName)
+);
+
+CREATE TABLE IF NOT EXISTS SubObjective (
+    SubObjectiveCode CHAR(10) PRIMARY KEY,
+    SubObjectiveDescription TEXT,
+    ObjectiveCode CHAR(8),
+    FOREIGN KEY (ObjectiveCode) REFERENCES LearningObjective(ObjectiveCode)
+);
+
+CREATE TABLE IF NOT EXISTS ProgramCourse (
+    ProgramName VARCHAR(255),
+    CourseID CHAR(8),
+    PRIMARY KEY (ProgramName, CourseID),
+    FOREIGN KEY (ProgramName) REFERENCES Program(ProgramName),
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+);
+
+CREATE TABLE IF NOT EXISTS ProgramCourseObjective (
+    ProgramName VARCHAR(255),
+    CourseID CHAR(8),
+    ObjectiveCode CHAR(8),
+    PRIMARY KEY (ProgramName, CourseID, ObjectiveCode),
+    FOREIGN KEY (ProgramName) REFERENCES Program(ProgramName),
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
+    FOREIGN KEY (ObjectiveCode) REFERENCES LearningObjective(ObjectiveCode)
+);
+
+CREATE TABLE IF NOT EXISTS SectionObjective (
+    SectionNumber CHAR(3),
+    Semester ENUM('Fall', 'Spring', 'Summer'),
+    Year YEAR,
+    ObjectiveCode CHAR(8),
+    EvaluationMethod VARCHAR(255),
+    NumberOfStudentsMet INT,
+    PRIMARY KEY (SectionNumber, Semester, Year, ObjectiveCode),
+    FOREIGN KEY (SectionNumber, Semester, Year) REFERENCES Section(SectionNumber, Semester, Year),
+    FOREIGN KEY (ObjectiveCode) REFERENCES LearningObjective(ObjectiveCode)
+);
