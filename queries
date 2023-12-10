@@ -1,0 +1,154 @@
+import pymysql as mysql
+
+def establishConnection():
+        # Extract query parameters from input field
+        #self.conn = None  # Database connection
+        # Establish a connection to your database here
+        db_connection = mysql.connect(
+            host="localhost",
+            port=3306,
+            user="root",
+            password="password",
+            database="dbprog"
+            )
+        return db_connection
+
+def executeQuery(query):
+    cursor = establishConnection()
+    cursor.execute(query)
+
+def departmentQuery(input):
+    
+    return(f"""SELECT 
+    ProgramName
+FROM 
+    Program
+WHERE 
+    DepartmentCode = :{input};
+
+                """)
+
+def allPrograDepartmentmQuery(input):
+    
+    return(f"""
+            SELECT 
+                D.DepartmentName, 
+                P.ProgramName, 
+                F.FacultyName, 
+                F.FacultyRank
+            FROM 
+                Department D
+            LEFT JOIN 
+                Program P ON D.DepartmentCode = P.DepartmentCode
+            LEFT JOIN 
+                Faculty F ON D.DepartmentCode = F.DepartmentCode
+            WHERE 
+                D.DepartmentCode = {input};
+            """)
+    
+def allFacultyDeartmentQuery(input):
+    
+    return(f"""
+            SELECT 
+                f.FacultyID, 
+                f.FacultyName, 
+                f.FacultyEmail, 
+                f.FacultyRank, 
+                p.ProgramName
+            FROM 
+                Faculty f
+            LEFT JOIN 
+                Program p ON f.FacultyID = p.PersonInChargeUniversityID
+            WHERE 
+                f.DepartmentCode =  {input};
+            """)
+
+def programAndYearObejectiveQuery(input):
+    return(f"""
+        SELECT 
+            c.CourseID, 
+            c.CourseTitle, 
+            lo.ObjectiveCode, 
+            s.Year
+        FROM 
+            Course c 
+        JOIN 
+            Section s ON c.CourseID = s.CourseID 
+        JOIN 
+            SectionObjective so ON s.SectionNumber = so.SectionNumber AND s.Semester = so.Semester AND s.Year = so.Year 
+        JOIN 
+            LearningObjective lo ON so.ObjectiveCode = lo.ObjectiveCode 
+        JOIN 
+            Program p ON lo.ProgramName = p.ProgramName 
+        WHERE 
+            p.ProgramName = '{input}';
+
+
+
+            """)
+
+def programAndObejectiveQuery(input):
+    return(f"""
+        SELECT 
+            lo.ObjectiveCode, 
+            lo.ObjectiveDescription
+            FROM 
+            LearningObjective lo
+            WHERE 
+            lo.ProgramName = {input};
+
+
+            """)
+def semesterYearQueryEvaluationResults(semester,program):
+    return(f"""
+            SELECT 
+                s.SectionNumber, 
+                s.Semester, 
+                s.Year, 
+                so.ObjectiveCode, 
+                so.EvaluationMethod, 
+                so.NumberOfStudentsMet,
+                CASE 
+                    WHEN so.ObjectiveCode IS NULL THEN 'Information not found'
+                    ELSE 'Information found'
+                END AS InformationStatus
+            FROM 
+                Section s
+            LEFT JOIN 
+                SectionObjective so ON s.SectionNumber = so.SectionNumber AND s.Semester = so.Semester AND s.Year = so.Year
+            INNER JOIN 
+                Course c ON s.CourseID = c.CourseID
+            INNER JOIN 
+                Program p ON c.DepartmentCode = p.DepartmentCode
+            WHERE 
+                s.Semester = :{semester} AND p.ProgramName = :{program};
+            """)
+
+def academicYearQuery(year,semester):
+    return(f"""
+            SELECT 
+                lo.ObjectiveCode, 
+                so.SubObjectiveCode, 
+                c.CourseID, 
+                s.SectionNumber, 
+                soe.Semester, 
+                soe.Year, 
+                COUNT(soe.EvaluationMethod) AS EvaluationMethodCount,
+                COUNT(soe.NumberOfStudentsMet) AS NumberOfStudentsMet,
+                (COUNT(soe.NumberOfStudentsMet) / COUNT(s.NumberOfStudents)) * 100 AS PercentageOfStudentsMet
+            FROM 
+                LearningObjective lo
+            LEFT JOIN 
+                SubObjective so ON lo.ObjectiveCode = so.ObjectiveCode
+            LEFT JOIN 
+                SectionObjective soe ON so.SubObjectiveCode = soe.ObjectiveCode
+            LEFT JOIN 
+                Section s ON soe.SectionNumber = s.SectionNumber AND soe.Semester = s.Semester AND soe.Year = s.Year
+            LEFT JOIN 
+                Course c ON s.CourseID = c.CourseID
+            WHERE 
+                soe.Year = {year} AND soe.Semester = {semester}
+            GROUP BY 
+                lo.ObjectiveCode, so.SubObjectiveCode, c.CourseID, s.SectionNumber, soe.Semester, soe.Year, soe.EvaluationMethod;
+
+            """)
