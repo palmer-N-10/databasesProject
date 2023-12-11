@@ -28,7 +28,7 @@ WHERE
 
                 """)
 
-def allPrograDepartmentmQuery(input):
+def allProgramDepartmentmQuery(input):
     
     return(f"""
             SELECT 
@@ -66,22 +66,22 @@ def allFacultyDeartmentQuery(input):
 def programAndYearObejectiveQuery(input):
     return(f"""
         SELECT 
-            c.CourseID, 
-            c.CourseTitle, 
-            lo.ObjectiveCode, 
-            s.Year
-        FROM 
-            Course c 
-        JOIN 
-            Section s ON c.CourseID = s.CourseID 
-        JOIN 
-            SectionObjective so ON s.SectionNumber = so.SectionNumber AND s.Semester = so.Semester AND s.Year = so.Year 
-        JOIN 
-            LearningObjective lo ON so.ObjectiveCode = lo.ObjectiveCode 
-        JOIN 
-            Program p ON lo.ProgramName = p.ProgramName 
-        WHERE 
-            p.ProgramName = '{input}';
+                C.CourseID, 
+                C.CourseTitle, 
+                LO.ObjectiveCode, 
+                LO.ObjectiveDescription, 
+                SO.SubObjectiveCode, 
+                SO.SubObjectiveDescription, 
+                S.Year
+            FROM Course C
+            JOIN ProgramCourseObjective PCO ON C.CourseID = PCO.CourseID
+            JOIN LearningObjective LO ON PCO.ObjectiveCode = LO.ObjectiveCode
+            LEFT JOIN SubObjective SO ON LO.ObjectiveCode = SO.ObjectiveCode
+            JOIN Section S ON C.CourseID = S.CourseID
+            WHERE PCO.ProgramName = {input}
+            GROUP BY C.CourseID, C.CourseTitle, LO.ObjectiveCode, SO.SubObjectiveCode, S.Year
+            ORDER BY C.CourseID, S.Year;
+
 
 
 
